@@ -20,7 +20,24 @@ app.set('trust proxy', env.TRUST_PROXY)
 app.use(helmet())
 app.use(
   cors({
-    origin: env.CORS_ORIGIN,
+    origin: (origin, callback) => {
+      const allowed = [
+        'http://localhost:5173',
+        'http://localhost:5174',
+        'https://insightsphere-sage.vercel.app',
+      ]
+      if (Array.isArray(env.CORS_ORIGIN)) {
+        allowed.push(...env.CORS_ORIGIN)
+      } else if (env.CORS_ORIGIN) {
+        allowed.push(env.CORS_ORIGIN)
+      }
+
+      if (!origin || allowed.includes(origin)) {
+        callback(null, true)
+      } else {
+        callback(new Error(`Not allowed by CORS: ${origin}`))
+      }
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'x-app-client'],
