@@ -25,7 +25,12 @@ export const login = asyncHandler(async (req, res) => {
 })
 
 export const refresh = asyncHandler(async (req, res) => {
-  const token = req.cookies?.refreshToken
+  const token =
+    req.cookies?.refreshToken ||
+    req.body?.refreshToken ||
+    (req.headers.authorization?.startsWith('Bearer ')
+      ? req.headers.authorization.substring(7)
+      : undefined)
   const { user, tokens } = await authService.refresh(token)
   setAuthCookies(res, tokens)
   return ok(res, { message: 'Refreshed', data: { user: sanitizeUser(user), tokens } })
