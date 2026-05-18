@@ -1,10 +1,13 @@
 import { env } from '../config/env.js'
 
 export function setAuthCookies(res, { accessToken, refreshToken }) {
+  const isProd = env.NODE_ENV === 'production'
+  const secure = isProd || env.COOKIE_SECURE
+
   const base = {
     httpOnly: true,
-    secure: env.NODE_ENV === 'production',
-    sameSite: env.NODE_ENV === 'production' ? 'none' : 'lax',
+    secure,
+    sameSite: secure ? 'none' : 'lax',
     signed: false,
     domain: env.COOKIE_DOMAIN || undefined,
     path: '/',
